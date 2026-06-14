@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warisan Sunda — Ensiklopedia Cagar Budaya & Alam</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand">
+        <span class="brand-icon">⬡</span>
+        <span>Warisan<strong>Sunda</strong></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Buka menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#katalog">Katalog</a></li>
+        <li><a href="#peta">Peta</a></li>
+        <li><a href="#ajukan">Ajukan Situs</a></li>
+        <li><a href="#tentang">Tentang</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Ensiklopedia & Portal Pelestarian</p>
+      <h1 class="hero-title">Mengabadikan<br /><em>Jejak Sunda</em></h1>
+      <p class="hero-sub">
+        Arsip digital arsitektur gedung bersejarah, cagar budaya, dan kekayaan alam
+        peninggalan tanah Sunda — agar generasi mendatang tak kehilangan akarnya.
+      </p>
+      <div class="hero-cta">
+        <a href="#katalog" class="btn btn-primary">Jelajahi Katalog</a>
+        <a href="#ajukan" class="btn btn-outline">Ajukan Situs Baru</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num" id="statSitus">47</span><span class="stat-label">Situs Terdaftar</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">12</span><span class="stat-label">Kabupaten/Kota</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">3</span><span class="stat-label">Kategori Warisan</span></div>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">↓ Gulir ke bawah</div>
+  </header>
+
+  <!-- ===== FILTER BAR ===== -->
+  <section class="filter-section" id="katalog">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">Dokumentasi Warisan</p>
+        <h2 class="section-title">Katalog Situs</h2>
+        <p class="section-desc">Telusuri arsip kami berdasarkan kategori, wilayah, atau status penetapan cagar budaya.</p>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Kategori</label>
+          <div class="filter-chips" id="filterCategory">
+            <button class="chip active" data-filter="semua">Semua</button>
+            <button class="chip" data-filter="arsitektur">Arsitektur</button>
+            <button class="chip" data-filter="cagar-alam">Cagar Alam</button>
+            <button class="chip" data-filter="artefak">Artefak & Situs</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label for="filterWilayah">Wilayah</label>
+          <select id="filterWilayah" class="select-field">
+            <option value="semua">Semua Wilayah</option>
+            <option value="bandung">Bandung Raya</option>
+            <option value="bogor">Bogor</option>
+            <option value="cianjur">Cianjur</option>
+            <option value="sukabumi">Sukabumi</option>
+            <option value="tasikmalaya">Tasikmalaya</option>
+          </select>
+        </div>
+        <div class="filter-group search-group">
+          <label for="searchInput">Cari</label>
+          <div class="search-wrap">
+            <input type="text" id="searchInput" class="search-field" placeholder="Nama situs atau bangunan..." />
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== KATALOG GRID ===== -->
+  <section class="katalog-section">
+    <div class="container">
+      <div class="katalog-grid" id="katalogGrid">
+        <!-- Diisi oleh JS -->
+      </div>
+      <div class="katalog-empty hidden" id="katalogEmpty">
+        <p>Tidak ada situs yang cocok dengan filter Anda.</p>
+      </div>
+      <div class="katalog-footer">
+        <button class="btn btn-outline" id="loadMoreBtn">Muat Lebih Banyak</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MODAL DETAIL ===== -->
+  <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== PETA ===== -->
+  <section class="peta-section" id="peta">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">Sebaran Geografis</p>
+        <h2 class="section-title">Peta Cagar Budaya</h2>
+        <p class="section-desc">Lokasi situs bersejarah dan cagar alam di seluruh tanah Sunda, Jawa Barat.</p>
+      </div>
+    </div>
+    <div class="peta-wrap">
+      <div id="map"></div>
+      <div class="peta-legend">
+        <p class="legend-title">Keterangan</p>
+        <div class="legend-item"><span class="legend-dot dot-arsitektur"></span> Arsitektur</div>
+        <div class="legend-item"><span class="legend-dot dot-alam"></span> Cagar Alam</div>
+        <div class="legend-item"><span class="legend-dot dot-artefak"></span> Artefak & Situs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FORM AJUKAN SITUS (CRUD) ===== -->
+  <section class="form-section" id="ajukan">
+    <div class="container">
+      <div class="form-layout">
+        <div class="form-info">
+          <p class="section-eyebrow">Partisipasi Masyarakat</p>
+          <h2 class="section-title">Ajukan Situs Baru</h2>
+          <p>Temukan sebuah bangunan tua, situs sejarah, atau kawasan alam yang belum tercatat? Bantu kami memperluas arsip dengan mengajukan usulan situs untuk diverifikasi oleh tim kurator.</p>
+          <ul class="info-steps">
+            <li><span class="step-num">01</span><div><strong>Isi formulir</strong><br/>Lengkapi data situs sedetail mungkin.</div></li>
+            <li><span class="step-num">02</span><div><strong>Verifikasi tim</strong><br/>Kurator kami akan meninjau dalam 7–14 hari kerja.</div></li>
+            <li><span class="step-num">03</span><div><strong>Dipublikasikan</strong><br/>Situs yang terverifikasi masuk ke katalog resmi.</div></li>
+          </ul>
+        </div>
+        <div class="form-card">
+          <form id="ajukanForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="namaSitus">Nama Situs <span class="required">*</span></label>
+                <input type="text" id="namaSitus" name="namaSitus" placeholder="cth. Gedung Merdeka Bandung" />
+                <span class="error-msg" id="errNamaSitus"></span>
+              </div>
+              <div class="form-group">
+                <label for="kategoriSitus">Kategori <span class="required">*</span></label>
+                <select id="kategoriSitus" name="kategoriSitus">
+                  <option value="">— Pilih kategori —</option>
+                  <option value="arsitektur">Arsitektur Bersejarah</option>
+                  <option value="cagar-alam">Cagar Alam</option>
+                  <option value="artefak">Artefak & Situs Purbakala</option>
+                </select>
+                <span class="error-msg" id="errKategori"></span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="wilayahSitus">Kabupaten/Kota <span class="required">*</span></label>
+                <input type="text" id="wilayahSitus" name="wilayahSitus" placeholder="cth. Kota Bandung" />
+                <span class="error-msg" id="errWilayah"></span>
+              </div>
+              <div class="form-group">
+                <label for="tahunEstimasi">Perkiraan Tahun Pembangunan</label>
+                <input type="text" id="tahunEstimasi" name="tahunEstimasi" placeholder="cth. 1920-an atau abad ke-15" />
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="alamatLengkap">Alamat / Lokasi Lengkap <span class="required">*</span></label>
+              <input type="text" id="alamatLengkap" name="alamatLengkap" placeholder="Jl. Asia Afrika No. 65, Bandung" />
+              <span class="error-msg" id="errAlamat"></span>
+            </div>
+            <div class="form-group full-width">
+              <label for="deskripsiSitus">Deskripsi Singkat <span class="required">*</span></label>
+              <textarea id="deskripsiSitus" name="deskripsiSitus" rows="4" placeholder="Jelaskan sejarah, arsitektur, atau keunikan situs ini..."></textarea>
+              <span class="error-msg" id="errDeskripsi"></span>
+              <span class="char-count" id="charCount">0 / 500 karakter</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="namaPengaju">Nama Pengaju <span class="required">*</span></label>
+                <input type="text" id="namaPengaju" name="namaPengaju" placeholder="Nama lengkap Anda" />
+                <span class="error-msg" id="errNamaPengaju"></span>
+              </div>
+              <div class="form-group">
+                <label for="emailPengaju">Email <span class="required">*</span></label>
+                <input type="email" id="emailPengaju" name="emailPengaju" placeholder="email@contoh.com" />
+                <span class="error-msg" id="errEmail"></span>
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="statusPenetapan">Status Penetapan (jika diketahui)</label>
+              <select id="statusPenetapan" name="statusPenetapan">
+                <option value="">— Tidak diketahui —</option>
+                <option value="cagar-budaya">Sudah ditetapkan cagar budaya</option>
+                <option value="belum">Belum ditetapkan</option>
+                <option value="proses">Dalam proses penetapan</option>
+              </select>
+            </div>
+            <div class="form-group full-width checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="setuju" name="setuju" />
+                <span>Saya menyatakan bahwa informasi yang saya berikan adalah benar dan dapat dipertanggungjawabkan.</span>
+              </label>
+              <span class="error-msg" id="errSetuju"></span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Kirim Usulan Situs</button>
+          </form>
+          <div class="form-success hidden" id="formSuccess">
+            <div class="success-icon">✓</div>
+            <h3>Usulan Terkirim!</h3>
+            <p>Terima kasih, <strong id="successName"></strong>. Tim kurator kami akan meninjau usulan Anda dalam 7–14 hari kerja dan menghubungi via email.</p>
+            <button class="btn btn-outline" id="resetForm">Ajukan Situs Lain</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DAFTAR PENGAJUAN (CRUD READ) ===== -->
+  <section class="submissions-section">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">Transparansi</p>
+        <h2 class="section-title">Usulan Masuk</h2>
+        <p class="section-desc">Daftar usulan situs yang sedang menunggu verifikasi dari masyarakat.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="submissionsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama Situs</th>
+              <th>Kategori</th>
+              <th>Wilayah</th>
+              <th>Pengaju</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="submissionsBody">
+            <!-- Diisi oleh JS -->
+          </tbody>
+        </table>
+        <p class="table-empty hidden" id="tableEmpty">Belum ada usulan yang masuk.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TENTANG ===== -->
+  <section class="tentang-section" id="tentang">
+    <div class="container">
+      <div class="tentang-grid">
+        <div class="tentang-text">
+          <p class="section-eyebrow">Tentang Proyek</p>
+          <h2 class="section-title">Misi Pelestarian Digital</h2>
+          <p>Warisan Sunda adalah inisiatif dokumentasi digital yang bertujuan menginventarisasi, mempublikasikan, dan mengarsipkan kekayaan budaya serta alam tanah Sunda secara terbuka dan kolaboratif.</p>
+          <p>Proyek ini dibangun sebagai platform publik yang memungkinkan masyarakat turut berpartisipasi dalam proses identifikasi dan pelaporan situs-situs yang belum tercatat secara resmi.</p>
+          <div class="tentang-tags">
+            <span class="tag">Cagar Budaya</span>
+            <span class="tag">Arsitektur Kolonial</span>
+            <span class="tag">Situs Megalitikum</span>
+            <span class="tag">Hutan Lindung</span>
+            <span class="tag">Benda Bersejarah</span>
+          </div>
+        </div>
+        <div class="tentang-ornament">
+          <div class="ornament-box">
+            <div class="ornament-inner">
+              <p class="ornament-quote">"Bangsa yang besar adalah bangsa yang mengenal sejarah dan budayanya."</p>
+              <p class="ornament-attr">— Soekarno</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <p class="footer-logo">⬡ Warisan<strong>Sunda</strong></p>
+          <p>Ensiklopedia dan portal pelestarian cagar budaya & alam peninggalan tanah Sunda.</p>
+        </div>
+        <div class="footer-links">
+          <p class="footer-heading">Navigasi</p>
+          <a href="#katalog">Katalog Situs</a>
+          <a href="#peta">Peta Interaktif</a>
+          <a href="#ajukan">Ajukan Situs</a>
+          <a href="#tentang">Tentang</a>
+        </div>
+        <div class="footer-links">
+          <p class="footer-heading">Kategori</p>
+          <a href="#">Arsitektur Bersejarah</a>
+          <a href="#">Cagar Alam</a>
+          <a href="#">Artefak & Situs</a>
+        </div>
+        <div class="footer-links">
+          <p class="footer-heading">Proyek</p>
+          <a href="#">GitHub Repository</a>
+          <a href="#">Dokumentasi API</a>
+          <a href="#">Tim Pengembang</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Warisan Sunda · FEB Universitas Padjadjaran · Tugas Besar Pengembangan Web</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
